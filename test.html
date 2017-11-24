@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <h1>Open your javascript console to see what's under the hood. (firefox or chrome)</h1>
+</body>
+<script src="js/bitcore-lib.js"></script>
+<script src="js/bitcore-explorers.js"></script>
+<script src="js/bitcore-mnemonic.js"></script>
+<script src="js/wallet.js"></script>
+
+<script type="text/javascript">
+
+(function() {
+    // Everything happens here!
+
+    // Get the master key
+    console.log("Here we generate the private master key based on seed. You can use this same seed in any other bip32 generator to see that it match perfectly. Example https://coinomi.com/recovery-phrase-tool.html ");
+    var xpriv = Wallet.getMasterKey("film speed midnight cave come federal horror unusual cute trap congress inherit", "superPassword");
+    console.log(xpriv);
+
+    // Generate HD addresses from the master key
+    console.log("Here we generate 10 addresse. Again it match perfectly OK with any other BIP44 generator, so the private keys for each address is the right one.");
+    var addresses = this.addresses = Wallet.generateHD(xpriv);
+    console.log(addresses);
+
+    //Makes the transaction
+    // There is 0.07623689 POT in address PFdzfENGEYdfXn6S8AZvRSijKpHixautkq, private is U7Wig5kPqXNN34dLN568hVk9sLsWxK1AbCdex1oRJwCsbFVxUM6K
+    // Destination address belongs to the same HD
+    //var amount = 7623689; // The amount in the address in satoshis
+    console.log("Here We get the unspent from the source address, sign the transaction and send the transaction... it fails miserably");
+    var amount = 1000000; // Amount to be transferred
+    Wallet.prepareTX("PFdzfENGEYdfXn6S8AZvRSijKpHixautkq", "PWoPsoU6QW1qr2JW3dkqymjfABt44ZGk34", amount, "U7Wig5kPqXNN34dLN568hVk9sLsWxK1AbCdex1oRJwCsbFVxUM6K")
+
+    /**
+     * As you can see in the log, the Tx is signed successfully.
+     * But when you check the network request, returns error 400 TX decode failed (code -22)
+     * Same happens in I use the official potcore JS library.
+     */
+
+})();
+</script>
+
+</html>
