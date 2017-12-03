@@ -7,39 +7,36 @@
 <body>
     <h1>Open your javascript console to see what's under the hood. (firefox or chrome)</h1>
 </body>
-<script src="js/bitcore-lib.js"></script>
-<script src="js/bitcore-explorers.js"></script>
-<script src="js/bitcore-mnemonic.js"></script>
-<script src="js/wallet.js"></script>
-
+<script src="js/new-potcoin.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script type="text/javascript">
 
 (function() {
-    // Everything happens here!
 
-    // Get the master key
-    console.log("Here we generate the private master key based on seed. You can use this same seed in any other bip32 generator to see that it match perfectly. Example https://coinomi.com/recovery-phrase-tool.html ");
-    var xpriv = Wallet.getMasterKey("film speed midnight cave come federal horror unusual cute trap congress inherit", "superPassword");
-    console.log(xpriv);
+    // UTXO from https://chain.potcoin.com/api/addr/PFdzfENGEYdfXn6S8AZvRSijKpHixautkq/utxo
+    //
+    // If we use WIF 183, then is U7Wig5kPqXNN34dLN568hVk9sLsWxK1AbCdex1oRJwCsbFVxUM6K
+    // If we use WIF 189 then is UzzW73untSsBtAhwgXTVUYK5Mx5RxpdXZrNSJjszFoj9HEdGdDZ5
+    // but WIF 183 is the only one that works importing addresses into QT wallet
 
-    // Generate HD addresses from the master key
-    console.log("Here we generate 10 addresse. Again it match perfectly OK with any other BIP44 generator, so the private keys for each address is the right one.");
-    var addresses = this.addresses = Wallet.generateHD(xpriv);
-    console.log(addresses);
+    var txb = new potcoin.TransactionBuilder();
+    var input = potcoin.ECKey.fromWIF('U7Wig5kPqXNN34dLN568hVk9sLsWxK1AbCdex1oRJwCsbFVxUM6K');
+    txb.addInput('36b66f96f7083dd45d84dbcde98b1edafa88aeaf572ac247a222f51ba461dfec', 1);
+    txb.addOutput('PWoPsoU6QW1qr2JW3dkqymjfABt44ZGk34', 1000000);
+    txb.sign(0, input);
 
-    //Makes the transaction
-    // There is 0.07623689 POT in address PFdzfENGEYdfXn6S8AZvRSijKpHixautkq, private is U7Wig5kPqXNN34dLN568hVk9sLsWxK1AbCdex1oRJwCsbFVxUM6K
-    // Destination address belongs to the same HD
-    //var amount = 7623689; // The amount in the address in satoshis
-    console.log("Here We get the unspent from the source address, sign the transaction and send the transaction... it fails miserably");
-    var amount = 1000000; // Amount to be transferred
-    Wallet.prepareTX("PFdzfENGEYdfXn6S8AZvRSijKpHixautkq", "PWoPsoU6QW1qr2JW3dkqymjfABt44ZGk34", amount, "U7Wig5kPqXNN34dLN568hVk9sLsWxK1AbCdex1oRJwCsbFVxUM6K")
+    console.log(txb.build().toHex());
 
-    /**
-     * As you can see in the log, the Tx is signed successfully.
-     * But when you check the network request, returns error 400 TX decode failed (code -22)
-     * Same happens in I use the official potcore JS library.
-     */
+    // Broadcast TX
+    axios.post('https://chain.potcoin.com/api/tx/send', {
+        rawtx: txb.build().toHex()
+      })
+      .then(function (response) {
+        console.log(response);
+      })
+      .catch(function (error) {
+        console.error(error);
+      });
 
 })();
 </script>

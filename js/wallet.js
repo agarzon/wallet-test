@@ -62,6 +62,7 @@ var Wallet = (function() {
     }
 
     function prepareTX(address, desination, amount, privatekey) {
+
         if (validatesAddress(address) === false) {
             throw new Error("Source address is not valid.");
         }
@@ -91,22 +92,22 @@ var Wallet = (function() {
                 .change(address)
                 .sign(privatekey);
 
-            console.log(transaction);
             console.log("Verify = " + transaction.verify());
             console.log("Signature = " + transaction.isFullySigned());
-
             var txSerialized = transaction.serialize();
             console.log(txSerialized);
+            return txSerialized;
+        });
+    }
 
-            //throw new Error("STOP");
-            insight.broadcast(txSerialized, function(err, txId) {
-                if (err) {
-                    console.error(err);
-                    //console.log(JSON.stringify(err));
-                } else {
-                    console.log('Successfully sent: '+txId);
-                }
-            });
+    function sendTx(txSerialized) {
+        insight.broadcast(txSerialized, function(err, txId) {
+            if (err) {
+                console.error(err);
+                //console.log(JSON.stringify(err));
+            } else {
+                console.log('Successfully sent: '+txId);
+            }
         });
     }
 
@@ -161,6 +162,7 @@ var Wallet = (function() {
         getMasterKey: getMasterKey,
         generateHD: generateHD,
         prepareTX: prepareTX,
+        sendTx: sendTx,
         addresses: addresses,
     };
 }());
