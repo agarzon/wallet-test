@@ -25,6 +25,7 @@
     txb.addOutput('PWoPsoU6QW1qr2JW3dkqymjfABt44ZGk34', 1000000);
     txb.sign(0, input);
 
+    console.log(txb.build().ins[0].script.buffer.toString('hex'));
     console.log(txb.build().toHex());
 
     // Broadcast TX
